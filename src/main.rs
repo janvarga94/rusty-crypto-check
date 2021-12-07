@@ -1,6 +1,7 @@
+#![windows_subsystem = "windows"] // dont use console
+                                  // comment line above when debugging
+
 use ::error_chain;
-use std::fs::File;
-use std::io::prelude::*;
 
 error_chain::error_chain! {
     foreign_links {
@@ -33,12 +34,9 @@ async fn get_print_data() -> Result<()> {
         .await?;
 
     let text_body = res.text().await?;
-    let mut file = File::create("result.json")?;
-    file.write_all(text_body.as_bytes())?;
+    let json: serde_json::Result<serde_json::Value> = serde_json::from_str(&text_body);
 
-    let v: serde_json::Result<serde_json::Value> = serde_json::from_str(&text_body);
-
-    match v {
+    match json {
         Ok(json) => {
             println!("=====RESULT=====");
 
